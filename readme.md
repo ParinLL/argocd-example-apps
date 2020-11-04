@@ -96,7 +96,7 @@ argocd cluster add
 + 再登入自己的github 
 + 連線到下面的範例網址  https://github.com/harryliu123/argocd-example-apps
 + 按下右上角的 Fork 取得網址 https://github.com/yourname/argocd-example-apps
-+ 修改
++ 修改 guestbook/guestbook-ui-ingress.yaml 裡面的網址: guestbook.tradevan-rd.com
 
 
 
@@ -105,7 +105,6 @@ argocd cluster add
 + path 為 guestbook
 + 由於 argo 所佈署的k8s 和 guestbook 為同一座k8s 所以 kube api為https://kubernetes.default.svc
 + 將服務佈署在 default的 namespace上
-+ 修改 guestbook/guestbook-ui-ingress.yaml 裡面的網址: guestbook.tradevan-rd.com
 
 ```
 argocd app create guestbook --repo  https://github.com/yourname/argocd-example-apps --path guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
