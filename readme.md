@@ -95,7 +95,7 @@ argocd cluster add
 
 + 再登入自己的github 
 + 連線到下面的範例網址  https://github.com/harryliu123/argocd-example-apps
-+ 按下右上角的 Fork 取得網址 https://github.com/<yourname>/argocd-example-apps
++ 按下右上角的 Fork 取得網址 https://github.com/yourname/argocd-example-apps
 + 修改
 
 
@@ -108,7 +108,7 @@ argocd cluster add
 + 修改 guestbook/guestbook-ui-ingress.yaml 裡面的網址: guestbook.tradevan-rd.com
 
 ```
-argocd app create guestbook --repo  https://github.com/<yourname>/argocd-example-apps --path guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
+argocd app create guestbook --repo  https://github.com/yourname/argocd-example-apps --path guestbook --dest-server https://kubernetes.default.svc --dest-namespace default
 ```
 
 連線 http://guestbook.tradevan-rd.com  即可看到網頁
