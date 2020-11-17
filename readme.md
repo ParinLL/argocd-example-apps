@@ -23,22 +23,27 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: argocd-server-ingress
+  namespace: argocd
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
   rules:
-  - host: argo.tradevan.com.tw
-  - http:
-      paths:
-      - path: /
-        backend:
-          serviceName: argocd-server
-          servicePort: https
-EOF
+    - host: argocd.172.31.230.24.nip.io
+      http:
+        paths:
+          - backend:
+              serviceName: argocd-server
+              servicePort: https
+  tls:
+    - hosts:
+        - argocd.172.31.230.24.nip.io
+      secretName: argocd-tls-secret
 
+EOF
 
 ```
 
@@ -58,10 +63,18 @@ argocd-server-656f9b895b-bfjvw
 ## 登入並修改 密碼
 
 ```
-argocd login argo.tradevan.com.tw
-### 這裡會要求輸入帳密
-Username: admin
-Password: 
+## 先port-forward 如果直接連ing 會出現UTF8問題
+kubectl port-forward svc/argocd-server -n argocd --address 0.0.0.0 8080:443
+
+## 取得密碼
+kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2
+argocd-server-656f9b895b-bfjvw
+
+## 登入
+argocd login 127.0.0.1:8080
+
+## 修改密碼
+argocd account update-password
 
 ## 變更密碼
 argocd account update-password
@@ -78,12 +91,65 @@ argocd account update-password
 + 執行下面指令會將現在的kube config 裡關於 kube-system 的權限綁定給 此sa使用 (如果你正在登入的權限為cluster-admin, 此時argo的sa 也會同樣取得此ClusterRole)
 
 ```
-argocd cluster add
+## local 為kubeconfig 內的 CONTEXTNAME
+argocd cluster add local
+
+### 會發現報錯誤 因為我們用的是rancher 的kube api
+INFO[0000] ServiceAccount "argocd-manager" created in namespace "kube-system"
+INFO[0000] ClusterRole "argocd-manager-role" created
+INFO[0000] ClusterRoleBinding "argocd-manager-role-binding" created
+Handling connection for 8080
+FATA[0001] rpc error: code = Unauthenticated desc = the server has asked for the client to provide credentials
+
+## 解決辦法在下面
+### 裡面相關資訊從rancher 的api key取得
+https://gist.github.com/janeczku/b16154194f7f03f772645303af8e9f80
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mycluster-secret
+  labels:
+    argocd.argoproj.io/secret-type: cluster
+type: Opaque
+stringData:
+  name: mycluster.com
+  server: https://mycluster.com
+  config: |
+    {
+      "bearerToken": "<authentication token>",
+      "tlsClientConfig": {
+        "insecure": false,
+        "caData": "<base64 encoded certificate>"
+      }
+    }
+## ===========================================
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rancher-secret
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: cluster
+type: Opaque
+stringData:
+  name: rancher.local
+  server: https://rancher.intranet.com.tw/v3
+  config: |
+    {
+      "bearerToken": "token-ppgk2:24zln9xs2r5wcs7lknl86cghvqt7rldfk925cr5pfjq6hk49ghrtdl",
+      "tlsClientConfig": {
+        "insecure": true
+      }
+    }
+EOF
 ```
 
 
 
-連線到UI: https://argo.tradevan.com.tw
+連線到UI: https://argocd.172.31.230.24.nip.io
 
 ----
 
