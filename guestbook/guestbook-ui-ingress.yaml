@@ -6,7 +6,7 @@ metadata:
    kubernetes.io/ingress.class: "citrix"
 spec:
   rules:
-  - host:  guestbook.tradevan-rd.com
+  - host:  guestbook.172.31.230.24.nip.io
     http:
       paths:
       - path: /
