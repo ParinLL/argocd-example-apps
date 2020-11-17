@@ -148,6 +148,23 @@ EOF
 ```
 
 
+### 如果要透過cli 工具不能經過ingress, 透過port-forward或是 svc直接打出來
+
+#### 建立一個project app
+
+```
+argocd app create guestbook --repo  https://github.com/harryliu123/argocd-example-apps --path guestbook --dest-server https://kubernetes.default.svc --dest-namespace test
+```
+
+#### 設定sync policy
+
+```
+## --self-heal 會自動比對同步 30秒同步一次
+argocd app set guestbook --sync-policy automated --auto-prune --self-heal \
+                         --self-heal-timeout-seconds 30
+```
+
+
 
 連線到UI: https://argocd.172.31.230.24.nip.io
 
