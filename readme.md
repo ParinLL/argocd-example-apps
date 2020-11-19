@@ -102,7 +102,7 @@ Handling connection for 8080
 FATA[0001] rpc error: code = Unauthenticated desc = the server has asked for the client to provide credentials
 
 ## 解決辦法在下面
-### 裡面相關資訊從rancher 的api key取得
+### 裡面相關資訊從rancher 的的kubeconfig取得
 https://gist.github.com/janeczku/b16154194f7f03f772645303af8e9f80
 
 apiVersion: v1
@@ -136,10 +136,10 @@ metadata:
 type: Opaque
 stringData:
   name: rancher.local
-  server: https://rancher.intranet.com.tw/v3
+  server: https://rancher.intranet.com.tw/k8s/clusters/local
   config: |
     {
-      "bearerToken": "token-ppgk2:24zln9xs2r5wcs7lknl86cghvqt7rldfk925cr5pfjq6hk49ghrtdl",
+      "bearerToken": "kubeconfig-user-5h5gh:h942vjfbhhl9p79c7vk626bXXXXXXXXXXXXXXXXrhvzzkzjcszw",
       "tlsClientConfig": {
         "insecure": true
       }
@@ -147,6 +147,7 @@ stringData:
 EOF
 ```
 
+![image-20201117121556018](images/image-20201117121820946.png)
 
 ### 如果要透過cli 工具不能經過ingress, 透過port-forward或是 svc直接打出來
 
