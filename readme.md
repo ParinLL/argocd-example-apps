@@ -173,6 +173,9 @@ argocd app set guestbook --sync-policy automated --auto-prune --self-heal \
 
 
 
+
+
+
 # 測試流程
 
 ## 複製git 範例
@@ -229,4 +232,21 @@ guestbook-ui-85c9c5f9cb-kgqrh   0/1     ContainerCreating   0          4s
 ```
 
 
+## 建立slack 通知
+```
+## 先到slack 註冊
+### 註冊網址
+https://api.slack.com/apps?new_app=1
 
+### 參考文件
+https://argoproj-labs.github.io/argocd-notifications/services/slack/
+
+
+## 安裝 argocd-notifications
+helm repo add argo https://argoproj.github.io/argo-helm
+helm install --namespace argocd argo/argocd-notifications --generate-name \
+    --set triggers[0].name=on-sync-succeeded \
+    --set triggers[0].enabled=true \
+    --set secret.notifiers.slack.enabled=true \
+    --set secret.notifiers.slack.token=<slack token>
+```
